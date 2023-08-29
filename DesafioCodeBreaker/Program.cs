@@ -6,7 +6,10 @@ namespace DesafioCodeBreaker
 {
     public class Program
     {
+        private static readonly int _minKeyNumber = 1;
+        private static readonly int _maxKeyNumber = 10000;
         private static readonly string _apiUrl = "https://localhost:7038/fiap";
+
         private static int _counter = 0;
 
         static void Main(string[] args)
@@ -47,11 +50,9 @@ namespace DesafioCodeBreaker
                              'ò', 'ô', 'õ', 'p', 'q', 'r', 's', 't', 'u', 
                              'ú', 'ù', 'û', 'v', 'w', 'x', 'y', 'z' };
 
-            int[] numbers = Enumerable.Range(1, 10000).ToArray();
-
             List<string> keys = new List<string>();
 
-            foreach(var number in numbers)
+            for(int number = _minKeyNumber; number <= _maxKeyNumber; number++)
             {
                 foreach(var chr in chars)
                 {
