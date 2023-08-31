@@ -9,14 +9,18 @@ namespace DesafioCodeBreaker
         private static readonly int _minKeyNumber = 1;
         private static readonly int _maxKeyNumber = 10000;
         private static readonly string _apiUrl = "https://fiap-inaugural.azurewebsites.net/fiap";
+        private static readonly string _txtTestedNumbersPath =
+            @$"{AppDomain.CurrentDomain.BaseDirectory}\TESTED_NUMBERS.txt";
 
-        static Random _random = new Random();
-
+        private static readonly Random _random = new Random();
+       
         static async Task Main(string[] args)
         {
-            var intList = GenerateShuffledIntList();
+            var numbersToProcess = GenerateShuffledIntList()
+                                    .Except(GetTestedNumbers())
+                                    .ToList();
 
-            foreach (int i in intList)
+            foreach (int i in numbersToProcess)
             {
                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Numero testado: {i}");
 
@@ -37,6 +41,8 @@ namespace DesafioCodeBreaker
                     Console.WriteLine($"////////////////////////CHAVE ENCONTRADA: {successKey}");
                     break;
                 }
+
+                SaveTestedNumber(i);
             }
 
             Console.ReadKey();
@@ -117,6 +123,54 @@ namespace DesafioCodeBreaker
             }
 
             return list;
+        }
+
+        static List<int> GetTestedNumbers()
+        {
+            List<int> numbers = new List<int>();
+
+            if (!File.Exists(_txtTestedNumbersPath))
+            {
+                Console.WriteLine("Arquivo txt não encontrado.");
+                return numbers;
+            }
+
+            try
+            {
+                Console.WriteLine($"Consultando arquivo {_txtTestedNumbersPath}");
+
+                using (StreamReader reader = new StreamReader(_txtTestedNumbersPath))
+                {
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line is null) break;
+
+                        numbers.Add(int.Parse(line));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocorreu um erro ao consultar o arquivo txt: " + ex.Message);
+            }
+
+            Console.WriteLine($"{numbers.Count} numeros já foram testados anteriormente.");
+
+            return numbers;
+        }
+
+        static void SaveTestedNumber(int number)
+        {
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(_txtTestedNumbersPath, true))
+                    writer.WriteLine(number);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocorreu um erro ao gravar no arquivo txt: " + ex.Message);
+            }
         }
     }
 }
